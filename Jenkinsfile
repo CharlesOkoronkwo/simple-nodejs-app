@@ -1,5 +1,11 @@
 pipeline {
-    agent any
+    agent { 
+	docker {
+            image 'node:18' // Use Node.js 18 Docker image
+            args '-u root' // Run as root inside the container
+}
+}
+
 
     environment {
         registry = "taylorbree/simple-nodejs-app" // Replace with your Docker Hub repository
