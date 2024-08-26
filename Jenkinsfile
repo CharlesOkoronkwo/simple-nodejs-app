@@ -21,7 +21,7 @@ pipeline {
         stage('Build') {
             steps {
                 // Install dependencies
-               sh 'curl -sL https://deb.nodesource.com/setup_14.x | bash -'
+               sh 'curl -sL https://deb.nodesource.com/setup_18.x | bash -'
                sh 'apt-get install -y nodejs'
                sh 'npm install'
             }
