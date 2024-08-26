@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: simple-nodejs-app
+  namespace: staging
+  labels:
+    app: simple-nodejs-app
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app: simple-nodejs-app
+  template:
+    metadata:
+      labels:
+        app: simple-nodejs-app
+    spec:
+      containers:
+      - name: simple-nodejs-app
+        image: taylorbree/simple-nodejs-app:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: NODE_ENV
+          value: "production"
