@@ -14,7 +14,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 // Checkout the code from your GitHub repository
-                git branch: 'main', url: 'https://github.com/CharlesOkoronkwo/simple-nodejs-app.git'
+                git branch: 'master', url: 'https://github.com/CharlesOkoronkwo/simple-nodejs-app.git'
             }
         }
 
