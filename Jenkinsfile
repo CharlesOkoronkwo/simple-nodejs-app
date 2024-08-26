@@ -22,7 +22,7 @@ pipeline {
             steps {
                 // Install dependencies
                sh 'curl -sL https://deb.nodesource.com/setup_18.x | bash -'
-               sh 'apt-get install -y nodejs'
+               sh 'sudo apt-get install -y nodejs'
                sh 'npm install'
             }
         }
