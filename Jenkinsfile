@@ -1,22 +1,33 @@
 pipeline {
     agent any
 
+    environment {
+        registry = "taylorbree/simple-nodejs-app" // Replace with your Docker Hub repository
+        registryCredential = 'taylorbree' // Jenkins credential ID for Docker Hub
+        dockerImage = ''
+        kubernetesNamespace = 'staging' // Replace with your Kubernetes namespace
+        kubernetesDeploymentName = 'simple-nodejs-app' // Replace with your Kubernetes deployment name
+    }
+
     stages {
+
         stage('Checkout') {
             steps {
-                git url: 'https://github.com/CharlesOkoronkwo/simple-nodejs-app.git', branch: 'master'
+                // Checkout the code from your GitHub repository
+                git branch: 'main', url: 'https://github.com/CharlesOkoronkwo/simple-nodejs-app.git'
             }
         }
 
         stage('Build') {
             steps {
+                // Install dependencies
                 sh 'npm install'
-                sh 'npm run build'
             }
         }
 
         stage('Test') {
             steps {
+                // Run tests
                 sh 'npm test'
             }
         }
@@ -24,7 +35,8 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    docker.build('simple-nodejs-app')
+                    // Build Docker image and tag it as 'latest'
+                    dockerImage = docker.build registry + ":latest"
                 }
             }
         }
@@ -32,27 +44,34 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
-                    docker.withRegistry('https://registry.hub.docker.com', 'taylorbree') {
-                        docker.image('simple-nodejs-app').push()
+                    // Log in to Docker Hub and push the image
+                    docker.withRegistry('https://registry.hub.docker.com', registryCredential) {
+                        dockerImage.push()
                     }
                 }
             }
         }
 
-        stage('Deploy to Staging') {
+        stage('Deploy to Kubernetes') {
             steps {
-                // Example: Deploy to a Kubernetes cluster
-                sh 'kubectl apply -f k8s/deployment.yaml --namespace staging'
+                script {
+                    // Deploy the application to Kubernetes
+                    sh """
+                    kubectl set image deployment/${kubernetesDeploymentName} ${kubernetesDeploymentName}=${registry}:latest --namespace=${kubernetesNamespace}
+                    kubectl rollout status deployment/${kubernetesDeploymentName} --namespace=${kubernetesNamespace}
+                    """
+                }
             }
         }
     }
 
     post {
         success {
-            echo 'Build completed successfully!'
+            echo 'Pipeline completed successfully!'
         }
         failure {
-            echo 'Build failed.'
+            echo 'Pipeline failed. Please check the logs for details.'
         }
     }
 }
+
